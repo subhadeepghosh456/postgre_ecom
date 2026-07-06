@@ -1,0 +1,18 @@
+enum Type{
+    HOME
+    WORK
+}
+
+model Address {
+    id       Int     @id @default(autoincrement())
+    street   String?
+    city     String  @db.VarChar(255)
+    landmark String? 
+    country  String  @default("india")
+    district String
+    state    String
+    pincode  Int
+    type     Type    @default(HOME)
+    userId   Int
+    user     User    @relation("UserAddress",fields: [userId],references: [id],onDelete: Cascade)
+}

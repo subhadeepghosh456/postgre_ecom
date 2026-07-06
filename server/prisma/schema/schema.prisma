@@ -1,0 +1,12 @@
+// Base schema: generator + datasource ONLY.
+// Define each table/model in its own file in this folder (e.g. user.prisma,
+// product.prisma). Prisma merges every *.prisma file in this directory.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}

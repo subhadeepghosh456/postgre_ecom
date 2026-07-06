@@ -1,0 +1,19 @@
+// Product table — example. Cross-file relations work automatically because
+// Prisma merges all *.prisma files in this folder into one schema.
+
+model Product {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String?
+  price       Decimal     @db.Decimal(10, 2)
+  stock       Int         @default(0)
+  orderItems  OrderItem[]
+  image       String
+  
+  // Renamed to adminId to align with standard conventions
+  adminId     Int
+  admin       User        @relation("AdminProducts", fields: [adminId], references: [id])
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
