@@ -21,6 +21,7 @@ router.post("/signup", async (req: Request, res: Response) => {
         .json({ errors: z.flattenError(parsed.error).fieldErrors });
     }
     const { email, password, name } = parsed.data;
+    
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
