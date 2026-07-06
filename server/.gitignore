@@ -5,4 +5,4 @@ dist
 .env
 
 # Generated Prisma client
-src/generated/prisma
+# src/generated/prisma/migration
