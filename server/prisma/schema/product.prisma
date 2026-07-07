@@ -9,6 +9,7 @@ model Product {
   stock       Int         @default(0)
   orderItems  OrderItem[]
   image       String
+  category    String
   
   // Renamed to adminId to align with standard conventions
   adminId     Int

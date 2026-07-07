@@ -3,6 +3,8 @@ import { z } from "zod";
 import { prisma } from "../lib/prisma.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import { authMiddleware } from "../middleware/auth.middleware.js";
+import { sendEmail } from "../utils/sendEmail.js";
 
 const router = Router();
 
@@ -21,7 +23,6 @@ router.post("/signup", async (req: Request, res: Response) => {
         .json({ errors: z.flattenError(parsed.error).fieldErrors });
     }
     const { email, password, name } = parsed.data;
-    
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
@@ -54,12 +55,44 @@ router.post("/login", async (req: Request, res: Response) => {
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, {
       expiresIn: "30d",
     });
-    res
-      .status(200)
-      .json({
-        token,
-        user: { id: user.id, email: user.email, name: user.name },
-      });
+    res.status(200).json({
+      token,
+      user: { id: user.id, email: user.email, name: user.name },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.post("/send-email", async (req: Request, res: Response) => {
+  try {
+    const { email, subject, html } = req.body;
+    await sendEmail(email, subject, html);
+    res.status(200).json({ message: "Email sent successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.patch("/reset-password", async (req: Request, res: Response) => {
+  try {
+    const { email, password, newPassword } = req.body;
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res
+        .status(401)
+        .json({ error: "Please enter your valid password or email" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    const updateUser = await prisma.user.update({
+      where: { email: email },
+      data: { password: hashedPassword },
+    });
+    return res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
