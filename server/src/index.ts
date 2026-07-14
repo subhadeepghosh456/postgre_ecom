@@ -1,6 +1,8 @@
 import "dotenv/config";
 import express from "express";
+import swaggerUi from "swagger-ui-express";
 import { prisma } from "./lib/prisma.js";
+import { openApiSpec } from "./docs/openapi.js";
 import usersRouter from "./routes/users.js";
 import productsRouter from "./routes/products.js";
 import authRouter from "./routes/auth.js";
@@ -10,6 +12,18 @@ app.use(express.json());
 
 // Health check
 app.get("/health", (_req, res) => res.json({ status: "ok" }));
+
+// Interactive API docs — http://localhost:3000/docs
+app.get("/docs.json", (_req, res) => res.json(openApiSpec));
+app.use(
+  "/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(openApiSpec, {
+    customSiteTitle: "Ecom API docs",
+    // Keeps the token you paste into "Authorize" across page reloads.
+    swaggerOptions: { persistAuthorization: true, displayRequestDuration: true },
+  }),
+);
 
 // Feature routes
 app.use("/api/auth", authRouter);

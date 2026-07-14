@@ -1,0 +1,18 @@
+enum OtpPurpose {
+    EMAIL_VERIFICATION
+    PASSWORD_RESET
+}
+
+model Otp {
+    id        Int        @id @default(autoincrement())
+    userId    Int
+    otpHash   String
+    purpose   OtpPurpose @default(EMAIL_VERIFICATION)
+    expiresAt DateTime
+    attempts  Int        @default(0)
+    createdAt DateTime   @default(now())
+    user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, purpose])
+    @@index([userId])
+}

@@ -11,6 +11,7 @@
 export type * from './models/Address.js'
 export type * from './models/Order.js'
 export type * from './models/OrderItem.js'
+export type * from './models/Otp.js'
 export type * from './models/Product.js'
 export type * from './models/User.js'
 export type * from './commonInputTypes.js'

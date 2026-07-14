@@ -11,10 +11,12 @@ model User {
   addresses        Address[] @relation("UserAddress")
   avatar           String?
   role             UserType  @default(USER)
-  updatePasswordAt DateTime
+  emailVerified    Boolean   @default(false)
+  updatePasswordAt DateTime?
 
   // Named relation added here to match the Product model
   products Product[] @relation("AdminProducts")
+  otp      Otp[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
