@@ -8,7 +8,7 @@ model Product {
   price       Decimal     @db.Decimal(10, 2)
   stock       Int         @default(0)
   orderItems  OrderItem[]
-  image       String
+  image       String?
   category    String
   
   // Renamed to adminId to align with standard conventions

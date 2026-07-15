@@ -13,6 +13,7 @@ export const signupSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
   name: z.string().min(1).optional(),
+  role: z.enum(["ADMIN", "USER"]).optional(),
 });
 
 export const loginSchema = z.object({

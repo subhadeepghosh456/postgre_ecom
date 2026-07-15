@@ -6,13 +6,18 @@ import { openApiSpec } from "./docs/openapi.js";
 import usersRouter from "./routes/users.js";
 import productsRouter from "./routes/products.js";
 import authRouter from "./routes/auth.js";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(express.json());
 
 // Health check
 app.get("/health", (_req, res) => res.json({ status: "ok" }));
-
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 // Interactive API docs — http://localhost:3000/docs
 app.get("/docs.json", (_req, res) => res.json(openApiSpec));
 app.use(

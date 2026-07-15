@@ -178,7 +178,7 @@ router.post("/signup", async (req: Request, res: Response) => {
       return res.status(400).json({ errors: fieldErrors(parsed.error) });
     }
     const email = normalizeEmail(parsed.data.email);
-    const { password, name } = parsed.data;
+    const { password, name,role } = parsed.data;
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
@@ -187,7 +187,7 @@ router.post("/signup", async (req: Request, res: Response) => {
 
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
     const user = await prisma.user.create({
-      data: { email, password: hashedPassword, name },
+      data: { email, password: hashedPassword, name,role },
     });
 
     // A dead mailbox or bad SMTP config must not lose us the account — the user
