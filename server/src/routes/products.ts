@@ -1,25 +1,34 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import { authMiddleware, requireRole } from "../middleware/auth.middleware.js";
-import { productImageSchema, productSchema } from "../schemas/product.schema.js";
+import {
+  productImageSchema,
+  productSchema,
+} from "../schemas/product.schema.js";
 import { z } from "zod";
 import { upload } from "../utils/fileUpload.js";
 import fs from "fs";
+import path from "path";
 
 const fieldErrors = (error: z.ZodError) => z.flattenError(error).fieldErrors;
 const router = Router();
 
 // GET /api/products
-router.get("/", async (_req: Request, res: Response) => {
-  const products = await prisma.product.findMany();
-  res.json(products);
-});
+router.get(
+  "/",
+  authMiddleware,
+  requireRole("ADMIN"),
+  async (_req: Request, res: Response) => {
+    const products = await prisma.product.findMany();
+    res.json(products);
+  },
+);
 
 router.post(
   "/create",
   authMiddleware,
   requireRole("ADMIN"),
-  
+
   async (req: Request, res: Response) => {
     try {
       const dataToValidate = {
@@ -73,6 +82,63 @@ router.patch(
         data: { image: parsedData.data.image },
       });
       res.json(updatedProduct);
+    } catch (error) {
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  },
+);
+
+router.put(
+  "/update/:id",
+  authMiddleware,
+  requireRole("ADMIN"),
+  async (req: Request, res: Response) => {
+    const productId = Number(req.params.id);
+    const parsedData = productSchema.safeParse(req.body);
+    if (!parsedData.success) {
+      return res.status(400).json({ error: fieldErrors(parsedData.error) });
+    }
+    try {
+      const updatedProduct = await prisma.product.update({
+        where: { id: productId },
+        data: parsedData.data,
+      });
+      res.json(updatedProduct);
+    } catch (error) {
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  },
+);
+
+router.delete(
+  "/delete/:id",
+  authMiddleware,
+  requireRole("ADMIN"),
+  async (req: Request, res: Response) => {
+    const productId = Number(req.params.id);
+    try {
+
+      const product = await prisma.product.findUnique({ where: { id: productId } });
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+      if (product.image) {
+        // Adjust the uploads directory path relative to this route file
+        const imagePath = path.join(__dirname, "..", "uploads", product.image);
+        
+        try {
+          fs.unlinkSync(imagePath);
+        } catch (fsError: any) {
+          // If the file is already missing on disk, log it but don't crash
+          if (fsError.code !== "ENOENT") {
+            console.error("Failed to delete file:", fsError);
+          }
+        }
+      }
+
+
+      await prisma.product.delete({ where: { id: productId } });
+      res.json({ message: "Product deleted successfully" });
     } catch (error) {
       res.status(500).json({ error: "Internal Server Error" });
     }

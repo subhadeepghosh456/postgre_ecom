@@ -10,7 +10,8 @@ model Product {
   orderItems  OrderItem[]
   image       String?
   category    String
-  
+  isDeleted   Boolean     @default(false)
+
   // Renamed to adminId to align with standard conventions
   adminId     Int
   admin       User        @relation("AdminProducts", fields: [adminId], references: [id])

@@ -68,4 +68,7 @@ Relations across files work automatically (see `order.prisma` referencing
 | `npm run prisma:generate` | Regenerate the Prisma client                  |
 | `npm run studio`          | Open Prisma Studio (visual DB browser)        |
 | `npm run build`           | Generate client + compile TypeScript to dist/ |
-| `npm start`               | Run the compiled server                       |
+| `npm start`               | Run the compiled server  
+
+- npx prisma migrate dev  
+- npx prisma generate                   |
